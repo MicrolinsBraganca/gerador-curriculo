@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gerador de Currículo</title>
+
+  <!-- Biblioteca para gerar arquivo Word -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/docx/8.5.0/docx.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 15px;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 20px;
+      padding: 14px;
+      font-size: 16px;
+      background: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    button:hover {
+      background: #1e40af;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 15px;
+      font-size: 12px;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Gerador de Currículo</h1>
+
+    <label>Nome completo</label>
+    <input id="nome" />
+
+    <label>Telefone</label>
+    <input id="telefone" />
+
+    <label>E-mail</label>
+    <input id="email" />
+
+    <label>Cidade</label>
+    <input id="cidade" />
+
+    <label>Objetivo profissional</label>
+    <textarea id="objetivo"></textarea>
+
+    <label>Formação acadêmica (uma por linha)</label>
+    <textarea id="formacao"></textarea>
+
+    <label>Experiência profissional (uma por linha)</label>
+    <textarea id="experiencia"></textarea>
+
+    <label>Cursos complementares (uma por linha)</label>
+    <textarea id="cursos"></textarea>
+
+    <label>Habilidades (uma por linha)</label>
+    <textarea id="habilidades"></textarea>
+
+    <button onclick="gerarCurriculo()">Gerar currículo em Word</button>
+
+    <footer>Site simples para criação de currículo • GitHub Pages</footer>
+  </div>
+
+  <script>
+    function linhas(texto) {
+      return texto.split("\n").filter(l => l.trim() !== "");
+    }
+
+    async function gerarCurriculo() {
+      const { Document, Packer, Paragraph, TextRun } = docx;
+
+      const nome = document.getElementById("nome").value;
+      const telefone = document.getElementById("telefone").value;
+      const email = document.getElementById("email").value;
+      const cidade = document.getElementById("cidade").value;
+      const objetivo = document.getElementById("objetivo").value;
+
+      const formacao = linhas(document.getElementById("formacao").value);
+      const experiencia = linhas(document.getElementById("experiencia").value);
+      const cursos = linhas(document.getElementById("cursos").value);
+      const habilidades = linhas(document.getElementById("habilidades").value);
+
+      const doc = new Document({
+        sections: [
+          {
+            children: [
+              new Paragraph({
+                children: [new TextRun({ text: nome, bold: true, size: 40 })],
+              }),
+
+              new Paragraph(`${telefone} | ${email} | ${cidade}`),
+
+              new Paragraph({ text: "", spacing: { after: 200 } }),
+
+              new Paragraph({ text: "OBJETIVO PROFISSIONAL", bold: true }),
+              new Paragraph(objetivo),
+
+              new Paragraph({ text: "", spacing: { after: 200 } }),
+
+              new Paragraph({ text: "FORMAÇÃO ACADÊMICA", bold: true }),
+              ...formacao.map(f => new Paragraph(`• ${f}`)),
+
+              new Paragraph({ text: "", spacing: { after: 200 } }),
+
+              new Paragraph({ text: "EXPERIÊNCIA PROFISSIONAL", bold: true }),
+              ...experiencia.map(e => new Paragraph(`• ${e}`)),
+
+              new Paragraph({ text: "", spacing: { after: 200 } }),
+
+              new Paragraph({ text: "CURSOS COMPLEMENTARES", bold: true }),
+              ...cursos.map(c => new Paragraph(`• ${c}`)),
+
+              new Paragraph({ text: "", spacing: { after: 200 } }),
+
+              new Paragraph({ text: "HABILIDADES", bold: true }),
+              ...habilidades.map(h => new Paragraph(`• ${h}`)),
+            ],
+          },
+        ],
+      });
+
+      const blob = await Packer.toBlob(doc);
+      saveAs(blob, "curriculo.docx");
+    }
+  </script>
+</body>
+</html>
